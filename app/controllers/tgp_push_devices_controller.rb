@@ -1,0 +1,2 @@
+class TgpPushDevicesController < ApplicationController
+end

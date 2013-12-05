@@ -1,0 +1,6 @@
+
+tgp_push_device_table
+  user_id integer
+  device_id
+  device_type :ios, :android, :sms  :integer
+  is_active :boolean

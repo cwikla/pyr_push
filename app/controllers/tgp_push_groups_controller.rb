@@ -1,0 +1,2 @@
+class TgpPushGroupsController < ApplicationController
+end

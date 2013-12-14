@@ -13,13 +13,13 @@ module Tgp
         end
 
         def push_add_device(device, device_type)
-          d = find_or_create_unique(device: device, device_type: device_type, user_id: self.id)
+          d = self.push_devices.find_or_create_unique(device: device, device_type: device_type) #, user_id: self.id)
           d.is_active = true
           d.save
         end
 
         def push_remove_device(device, device_type)
-          d = where(device: device, device_type: device_type, user_id: self.id).first
+          d = self.push_devices.where(device: device, device_type: device_type).first
           if d
             d.is_active = false
             d.save
@@ -27,13 +27,13 @@ module Tgp
         end
 
         def push_add_to_group(name)
-          d = find_or_create_unique(user_id: self.id, name: name)
+          d = self.push_groups.find_or_create_unique(user_id: self.id, name: name)
           d.is_active = true
           d.save
         end
 
         def push_remove_from_group(name)
-          d = where(user_id: self.id, name: name).first
+          d = self.push_groups.where(user_id: self.id, name: name).first
           if d
             d.is_active = false
             d.save

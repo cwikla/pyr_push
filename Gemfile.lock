@@ -3,7 +3,7 @@ PATH
   specs:
     tgp_push (0.0.1)
       aws-sdk
-      rails (~> 3.2.16)
+      rails (~> 3.2.13)
 
 GEM
   remote: https://rubygems.org/

@@ -5,6 +5,7 @@ module Tgp
     class Notification
 
       def self.message(user_id, message, badge_count=nil, params={})
+        #puts "A BADGE COUNT #{badge_count}"
         user_id = user_id.is_a?(Integer) ? user_id : user_id.id
 
         count = 0

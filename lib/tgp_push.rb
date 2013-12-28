@@ -21,8 +21,12 @@ module Tgp
       Tgp::Push::Device::unregister(user_id, device_token, device_type)
     end
 
-    def self.message(user_id, message, params={})
-      Tgp::Push::Notification::message(user_id, message, nil, params)
+    def self.message(user_id, message, badge_count=nil, params={})
+      Tgp::Push::Notification::message(user_id, message, badge_count, params)
+    end
+
+    def self.badge(user_id, badge_count, params={})
+      Tgp::Push::Notification::badge(user_id, badge_count, params)
     end
 
     def self.badge(user_id, badge_count, params={})

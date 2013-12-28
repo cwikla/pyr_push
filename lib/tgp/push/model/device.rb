@@ -63,6 +63,8 @@ module Tgp
 
         def message(message=nil, badge_count=nil, params={})
 
+          puts "BADGE COUNT #{badge_count}"
+
           platform_arn = self.class.arn_from_device_type(self.device_type)
           return if platform_arn.nil?
 

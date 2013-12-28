@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class TgpPushDevicesControllerTest < ActionController::TestCase
+class TgpPushChannelUserTest < ActiveSupport::TestCase
   # test "the truth" do
   #   assert true
   # end

@@ -1,6 +1,12 @@
 
-tgp_push_device_table
-  user_id integer
-  device_id
-  device_type :ios, :android, :sms  :integer
-  is_active :boolean
+Tgp::Push::Device::Register(user, :device_token, :platform)
+Tgp::Push::Device::Unregister(user, :device_token, :platform)
+Tgp::Push::Device::List(user)
+
+Tgp::Push::Channel::Subscribe(user_id, :channel_name)
+Tgp::Push::Channel::Unubscribe(user_id, :channel_name)
+Tgp::Push::Channel::List(user_id)
+
+Tgp::Push::Device::notification(device_tokens, msg={})
+Tgp::Push::Channel::notification(:channel_name, msg={})
+Tgp::Push::blast(msg={})

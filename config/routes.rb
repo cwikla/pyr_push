@@ -1,4 +1,4 @@
 Rails.application.routes.draw do
-  #resources :tgp_push_groups
-  #resources :tgp_push_devices
+  match '/push_notifications/:id(.:format)' => "tgp/push/push_notifications#create", :via => :post
+  match '/push_notifications/:id(.:format)' => "tgp/push/push_notifications#destroy", :via => :delete
 end

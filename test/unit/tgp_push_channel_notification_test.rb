@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class TgpPushGroupsControllerTest < ActionController::TestCase
+class TgpPushChannelNotificationTest < ActiveSupport::TestCase
   # test "the truth" do
   #   assert true
   # end

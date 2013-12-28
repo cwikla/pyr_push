@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class TgpPushGroupTest < ActiveSupport::TestCase
+class TgpPushChannelTest < ActiveSupport::TestCase
   # test "the truth" do
   #   assert true
   # end

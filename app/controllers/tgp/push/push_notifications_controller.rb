@@ -5,15 +5,15 @@ module Tgp
       respond_to :json
 
       def create
-        puts "CREATE PUSH PARAMS #{params.inspect}"
+        #puts "CREATE PUSH PARAMS #{params.inspect}"
 
-        Tgp::Push::Device::register(current_user.id, params[:id], Tgp::Push::DEVICE_TYPE_IOS)
+        Tgp::Push::Device::register(current_user.id, params[:id], Tgp::Push::DEVICE_TYPE_IOS, params)
 
         render :nothing => true, :status => 201
       end
 
       def destroy
-        puts "DESTROY PUSH PARAMS #{params.inspect}"
+        #puts "DESTROY PUSH PARAMS #{params.inspect}"
 
         Tgp::Push::Device::unregister(current_user.id, params[:id], Tgp::Push::DEVICE_TYPE_IOS)
 

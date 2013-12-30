@@ -38,11 +38,11 @@ module Tgp
           end
 
           def register(user_id, device_token, device_type, options={})
-            puts "CHECK OUT MY OPTIONS 1 #{options.inspect}"
+            #puts "CHECK OUT MY OPTIONS 1 #{options.inspect}"
             user_id = user_id.is_a?(Integer) ? user_id : user_id.id
 
             if options.keys.map { |x| x.to_sym} & [:tz, :start_time, :end_time]
-              puts "CHECK OUT MY OPTIONS #{options.inspect}"
+              #puts "CHECK OUT MY OPTIONS #{options.inspect}"
               pref = Tgp::Push::UserPref.find_or_create_unique(:user_id => user_id)
 
               pref.tz = options[:tz] || options["tz"] if options[:tz] || options["tz"]
@@ -77,7 +77,7 @@ module Tgp
 
         def message(message=nil, badge_count=nil, params={})
 
-          puts "BADGE COUNT #{badge_count}"
+          #puts "BADGE COUNT #{badge_count}"
 
           platform_arn = self.class.arn_from_device_type(self.device_type)
           return if platform_arn.nil?
@@ -93,7 +93,7 @@ module Tgp
           package["default"] = "The defult #{Time.now}"
           package[platform] =  aps_package.to_json
 
-          puts "2 => #{package.to_json}"
+          #puts "2 => #{package.to_json}"
 
           self.class.the_sns.client.publish(target_arn: self.target_arn, message: package.to_json, message_structure: 'json' )
         end

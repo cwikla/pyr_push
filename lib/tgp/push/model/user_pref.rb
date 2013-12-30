@@ -23,9 +23,11 @@ module Tgp
         end
 
         def check_params
-          puts "UserPref => #{self.inspect}"
+          #puts "UserPref => #{self.inspect}"
           if self.tz
-            if !ActiveSupport::TimeZone.zones_map { |m| m.name }.include?(self.tz)
+            begin
+              Time.zone.now.in_time_zone(self.tz)
+            rescue ArgumentError => ae
               self.errors[:tz] = "#{self.tz} is an invalid Time Zone"
             end
           end
@@ -55,7 +57,7 @@ module Tgp
             self.start_time = self.start_time / 100 * 100 + smin
             self.end_time = self.end_time / 100 * 100 + emin
           else
-            puts "Setting errors"
+            #puts "Setting errors"
             self.errors[:end_time] = "end_time must be set if you set start_time" if start_time
             self.errors[:start_time] = "start_time must be set if you set end_time" if end_time
           end

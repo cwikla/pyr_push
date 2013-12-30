@@ -4,6 +4,7 @@ require "tgp/push/model/channel"
 require "tgp/push/model/device"
 require "tgp/push/model/channel_notification"
 require "tgp/push/model/channel_user"
+require "tgp/push/model/user_pref"
 require "tgp/push/job/channel_job"
 require "tgp/push/notification"
 
@@ -13,8 +14,8 @@ module Tgp
     DEVICE_TYPE_ANDROID = 2
     DEVICE_TYPE_SMS = 3
 
-    def self.register(user_id, device_token, device_type)
-      Tgp::Push::Device::register(user_id, device_token, device_type)
+    def self.register(user_id, device_token, device_type, options={})
+      Tgp::Push::Device::register(user_id, device_token, device_type, options)
     end
 
     def self.unregister(user_id, device_token, device_type)

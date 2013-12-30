@@ -37,8 +37,22 @@ module Tgp
             arn
           end
 
-          def register(user_id, device_token, device_type)
-            user_id = user_id.is_a?(Integer) ? user_id : user.id
+          def register(user_id, device_token, device_type, options={})
+            puts "CHECK OUT MY OPTIONS 1 #{options.inspect}"
+            user_id = user_id.is_a?(Integer) ? user_id : user_id.id
+
+            if options.keys.map { |x| x.to_sym} & [:tz, :start_time, :end_time]
+              puts "CHECK OUT MY OPTIONS #{options.inspect}"
+              pref = Tgp::Push::UserPref.find_or_create_unique(:user_id => user_id)
+
+              pref.tz = options[:tz] || options["tz"] if options[:tz] || options["tz"]
+              pref.start_time = options[:start_time] || options["start_time"] if options[:start_time] || options["start_time"]
+              pref.end_time = options[:end_time] || options["end_time"] if options[:end_time] || options["end_time"]
+
+              if !pref.save
+                raise Exception, pref.errors.full_messages.join(", ")
+              end
+            end
 
             device = find_or_create_unique(:user_id => user_id, :device_token => device_token, :device_type => device_type)
 

@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    tgp_push (0.1.0)
+    tgp_push (0.2.0)
       aws-sdk
       rails (~> 3.2.13)
       rapns

@@ -75,7 +75,7 @@ module Tgp
           end
         end
 
-        def message(message=nil, badge_count=nil, params={})
+        def message(message=nil, badge_count=nil)
 
           #puts "BADGE COUNT #{badge_count}"
 
@@ -98,8 +98,8 @@ module Tgp
           self.class.the_sns.client.publish(target_arn: self.target_arn, message: package.to_json, message_structure: 'json' )
         end
 
-        def badge_count(count, params={})
-          self.message(nil, count, params)
+        def badge_count(count)
+          self.message(nil, count)
         end
 
       end

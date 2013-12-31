@@ -5,6 +5,7 @@ module Tgp
       config.tgp_push_gcm_arn = nil
       config.tgp_push_default_start_message_time = 0
       config.tgp_push_default_end_message_time = 2400
+      config.tgp_push_message_lifetime = 600 # 10 minutes
     end
   end
 end

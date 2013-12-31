@@ -3,8 +3,11 @@ require 'rapns'
 module Tgp
   module Push
     class Notification
+      def self.channel_message(channel_name, message, time_to_i=nil)
+        Tgp::Push::ChannelJob::async_message(channel_name, message, time_to_i)
+      end
 
-      def self.message(user_id, message, badge_count=nil, params={})
+      def self.message(user_id, message, badge_count=nil, time_to_i=nil)
         #puts "A BADGE COUNT #{badge_count}"
         user_id = user_id.is_a?(Integer) ? user_id : user_id.id
 
@@ -47,19 +50,19 @@ module Tgp
         return if message.nil? && badge_count.nil? # nothing to do, return
 
         devices = Tgp::Push::Device::where(:user_id => user_id, :is_active => true).each do |d|
-          d.message(message, badge_count, params)
+          Tgp::Push::DeviceJob::async_message(d.id, message, badge_count, time_to_i)
           count = count + 1
         end
 
-        Rails.logger("User #{user_id} has no registered/active push devices!") if count == 0
+        Rails.logger.debug("User #{user_id} has no registered/active push devices!") if count == 0
       end
 
-      def self.alert(user_id, the_message, params={})
-        self.message(user_id, the_message, params[:badge_count], params)
+      def self.alert(user_id, the_message, time_to_i=nil)
+        self.message(user_id, the_message, nil, time_to_i)
       end
 
-      def self.badge(user_id, count, params={})
-        self.message(user_id, params[:alert] || params[:message], count, params)
+      def self.badge(user_id, count, time_to_i=nil)
+        self.message(user_id, nil, time_to_i)
       end
 
     end

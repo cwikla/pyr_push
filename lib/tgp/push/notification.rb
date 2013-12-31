@@ -1,5 +1,3 @@
-require 'rapns'
-
 module Tgp
   module Push
     class Notification

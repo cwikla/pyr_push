@@ -20,7 +20,6 @@ Gem::Specification.new do |s|
   # s.add_dependency "jquery-rails"
   s.add_dependency "aws-sdk"
   s.add_dependency "tgp_async"
-  s.add_dependency "rapns"
 
   #s.add_development_dependency "sqlite3"
 end

@@ -88,7 +88,7 @@ module Tgp
           aps_package["aps"] = {}
           aps_package["aps"]["alert"] = message if message
           aps_package["aps"]["badge"] = badge_count if badge_count
-          aps_package["sound"] = "default"
+          aps_package["aps"]["sound"] = "default"
 
           package = {}
           package["default"] = "The default #{Time.now}"

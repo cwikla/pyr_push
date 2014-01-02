@@ -15,6 +15,8 @@ module Tgp
     DEVICE_TYPE_ANDROID = 2
     DEVICE_TYPE_SMS = 3
 
+    # options = tz (timezone), start_time, end_time (in 300, 8300, 1215 format) for when to mute the sound
+
     def self.register(user_id, device_token, device_type, options={})
       Tgp::Push::Device::register(user_id, device_token, device_type, options)
     end
@@ -23,16 +25,18 @@ module Tgp
       Tgp::Push::Device::unregister(user_id, device_token, device_type)
     end
 
-    def self.message(user_id, message, badge_count=nil, time_to_i=nil)
-      Tgp::Push::Notification::message(user_id, message, badge_count, time_to_i)
+    # options = :ttl => time to live in seconds, :sound => soundfile on app or  "default" or nil (for nothing), and :force to override the muted sound
+
+    def self.message(user_id, message, badge_count=nil, options={})
+      Tgp::Push::Notification::message(user_id, message, badge_count, options)
     end
 
-    def self.badge(user_id, badge_count, time_to_i=nil)
-      Tgp::Push::Notification::badge(user_id, badge_count, time_to_i)
+    def self.badge(user_id, badge_count, options={})
+      Tgp::Push::Notification::badge(user_id, badge_count, options)
     end
 
-    def self.channel_message(name, message, time_to_i=nil)
-      Tgp::Push::Notification::channel_message(name, message, time_to_i)
+    def self.channel_message(name, message, options={})
+      Tgp::Push::Notification::channel_message(name, message, options)
     end
 
     def self.subscribe_to_channel(user_id, name, only_if_exists=false)

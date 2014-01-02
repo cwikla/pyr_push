@@ -75,7 +75,12 @@ module Tgp
           end
         end
 
-        def message(message=nil, badge_count=nil)
+        def message(message=nil, badge_count=nil, sound=nil, expire_time=nil)
+          #puts "SOUND IS #{sound}"
+
+          return if message.nil? && badge_count.nil?
+
+          return if expire_time && (expire_time < Time.zone.now)
 
           #puts "BADGE COUNT #{badge_count}"
 
@@ -84,11 +89,12 @@ module Tgp
 
           platform = platform_arn.split("/")[1]
 
+          # refactor here for ios/android/text
           aps_package = {}
           aps_package["aps"] = {}
           aps_package["aps"]["alert"] = message if message
           aps_package["aps"]["badge"] = badge_count if badge_count
-          aps_package["aps"]["sound"] = "default"
+          aps_package["aps"]["sound"] = sound if sound
 
           package = {}
           package["default"] = "The default #{Time.now}"

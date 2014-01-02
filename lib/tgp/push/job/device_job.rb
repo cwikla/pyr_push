@@ -3,32 +3,29 @@ require 'tgp_async'
 module Tgp::Push
   class DeviceJob < Tgp::Async::BaseJob
 
-    def self.async_message(device_id, message=nil, badge_count=nil, time_to_i=nil)
-      time_to_i ||= Time.now.to_i
-      push(:device_id => device_id, :message => message, :badge_count => badge_count, :time_to_i => time_to_i)
+    def self.async_message(device_id, message=nil, badge_count=nil, sound=nil, expire_time=nil)
+
+      expire_time_i = nil
+      expire_time_i = expire_time.to_i if expire_time # make sure we are safe to pass through
+
+      push(:device_id => device_id, :message => message, :badge_count => badge_count, :sound => sound, :expire_time_i => expire_time_i)
     end
 
     def self.perform(msg)
       device_id = msg["device_id"]
       message = msg["message"]
       badge_count = msg["badge_count"]
-      time_to_i = msg["time_to_i"]
+      sound = msg["sound"]
+      expire_time_i = msg["expire_time_i"]
 
       return if device_id.nil?
-      return if time_to_i.nil?
-
       return if message.nil? && badge_count.nil?
 
-      if Tgp::Push::Engine::config.tgp_push_message_lifetime # ok to be nil, but not recommeded
-        if (Time.now.to_i - time_to_i.to_i) > Tgp::Push::Engine::config.tgp_push_message_lifetime
-          message = nil # nil out message, leave badge_count
-        end
-      end
-
-      return if message.nil? && badge_count.nil? # nothing to see here
+      expire_time = nil
+      expire_time = Time.zone.at(expire_time_i) if expire_time_i
 
       device = Tgp::Push::Device.find(device_id)
-      device.message(message, badge_count)
+      device.message(message, badge_count, sound, expire_time)
     end
   end
 end

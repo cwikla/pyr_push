@@ -2,7 +2,7 @@ require 'tgp_async'
 
 module Tgp::Push
   class ChannelJob < Tgp::Async::BaseJob
-    def self.async_message(channel_name, message, sound, ttl, force)
+    def self.async_message(channel_name, message, sound, ttl, force, user_data=nil)
 
       # because this is async, we need to figure out the original time based off of ttl and pass that through
 
@@ -12,7 +12,9 @@ module Tgp::Push
         expire_time_i = nil
       end
 
-      push(:channel_name => channel_name, :message => message, :sound => sound, :expire_time_i=>expire_time_i, :force=>force)
+      safe_user_data = user_data.nil? ? nil : user_data.to_json
+
+      push(:channel_name => channel_name, :message => message, :sound => sound, :expire_time_i=>expire_time_i, :force=>force, :user_data => safe_user_data)
     end
 
     def self.perform(msg)
@@ -22,9 +24,12 @@ module Tgp::Push
       sound = msg["sound"]
       force = msg["force"] || false
       expire_time_i = msg["expire_time_i"]
+      user_data = msg["user_data"]
 
       return if message.nil?
       return if channel_name.nil?
+
+      user_data = user_data.nil? ? nil : JSON.parse(user_data)
 
       ttl = nil
       ttl = (Time.zone.at(expire_time_i) - Time.zone.now) if expire_time_i # reget the ttl based off current time
@@ -33,6 +38,7 @@ module Tgp::Push
       options[:sound] = sound if sound
       options[:force] = force
       options[:ttl] = ttl
+      options[:user_data] = user_data if user_data
 
       Tgp::Push::Channel.each(channel_name) do |user_id|
         #puts "GOT USERID #{user_id}"

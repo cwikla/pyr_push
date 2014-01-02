@@ -75,8 +75,9 @@ module Tgp
           end
         end
 
-        def message(message=nil, badge_count=nil, sound=nil, expire_time=nil)
+        def message(message=nil, badge_count=nil, sound=nil, expire_time=nil, user_data=nil)
           #puts "SOUND IS #{sound}"
+          puts "USER DATA IS #{user_data.inspect}"
 
           return if message.nil? && badge_count.nil?
 
@@ -95,6 +96,12 @@ module Tgp
           aps_package["aps"]["alert"] = message if message
           aps_package["aps"]["badge"] = badge_count if badge_count
           aps_package["aps"]["sound"] = sound if sound
+          
+          if user_data
+            user_data.each_pair do |k,v|
+              aps_package[k.to_s] = v
+            end
+          end
 
           package = {}
           package["default"] = "The default #{Time.now}"

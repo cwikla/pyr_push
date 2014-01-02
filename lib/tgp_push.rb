@@ -25,7 +25,7 @@ module Tgp
       Tgp::Push::Device::unregister(user_id, device_token, device_type)
     end
 
-    # options = :ttl => time to live in seconds, :sound => soundfile on app or  "default" or nil (for nothing), and :force to override the muted sound
+    # options = :ttl => time to live in seconds, :sound => soundfile on app or  "default" or nil (for nothing), and :force to override the muted sound, and :user_data
 
     def self.message(user_id, message, badge_count=nil, options={})
       Tgp::Push::Notification::message(user_id, message, badge_count, options)

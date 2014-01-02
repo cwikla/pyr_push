@@ -6,8 +6,9 @@ module Tgp
         ttl = options.include?(:ttl) ? options[:ttl] : Tgp::Push::Engine.config.tgp_push_ttl
         sound = options.include?(:sound) ? options[:sound] : Tgp::Push::Engine.config.tgp_push_sound
         force = options[:force] || false # force sound to play
+        user_data = options[:user_data]
 
-        Tgp::Push::ChannelJob::async_message(channel_name, message, sound, ttl, force)
+        Tgp::Push::ChannelJob::async_message(channel_name, message, sound, ttl, force, user_data)
       end
 
       def self.message(user_id, message, badge_count=nil, options={})
@@ -64,7 +65,7 @@ module Tgp
         expire_time = ttl.nil? ? nil : Time.zone.now + ttl
 
         devices = Tgp::Push::Device::where(:user_id => user_id, :is_active => true).each do |d|
-          Tgp::Push::DeviceJob::async_message(d.id, message, badge_count, sound, expire_time)
+          Tgp::Push::DeviceJob::async_message(d.id, message, badge_count, sound, expire_time, options[:user_data])
           count = count + 1
         end
 

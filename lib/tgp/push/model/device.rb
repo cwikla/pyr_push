@@ -82,7 +82,7 @@ module Tgp
 
         def message(message=nil, badge_count=nil, sound=nil, expire_time=nil, user_data=nil)
           #puts "SOUND IS #{sound}"
-          puts "USER DATA IS #{user_data.inspect}"
+          #puts "USER DATA IS #{user_data.inspect}"
 
           return if message.nil? && badge_count.nil?
 
@@ -101,6 +101,7 @@ module Tgp
           aps_package["aps"]["alert"] = message if message
           aps_package["aps"]["badge"] = badge_count if badge_count
           aps_package["aps"]["sound"] = sound if sound
+          aps_package["aps"]["content-available"] = 1 if badge_count # if we have a badge_count, we have content
           
           if user_data
             user_data.each_pair do |k,v|

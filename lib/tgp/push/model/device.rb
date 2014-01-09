@@ -81,6 +81,8 @@ module Tgp
         end
 
         def message(message=nil, badge_count=nil, sound=nil, expire_time=nil, user_data=nil)
+          return if !Tgp::Push::Engine.config.tgp_push_enabled
+
           #puts "SOUND IS #{sound}"
           #puts "USER DATA IS #{user_data.inspect}"
 

@@ -2,6 +2,7 @@ module Tgp
   module Push
     class Notification
       def self.channel_message(channel_name, message, options={})
+        return if !Tgp::Push::Engine.config.tgp_push_enabled
 
         ttl = options.include?(:ttl) ? options[:ttl] : Tgp::Push::Engine.config.tgp_push_ttl
         sound = options.include?(:sound) ? options[:sound] : Tgp::Push::Engine.config.tgp_push_sound
@@ -12,6 +13,8 @@ module Tgp
       end
 
       def self.message(user_id, message, badge_count=nil, options={})
+        return if !Tgp::Push::Engine.config.tgp_push_enabled
+
         #puts "A BADGE COUNT #{badge_count}"
         user_id = user_id.is_a?(Integer) ? user_id : user_id.id
 

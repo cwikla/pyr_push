@@ -1,6 +1,7 @@
 module Tgp
   module Push
     class Engine < ::Rails::Engine
+      config.tgp_push_enabled = true
       config.tgp_push_apns_arn = nil
       config.tgp_push_gcm_arn = nil
       config.tgp_push_start_message_time = 900

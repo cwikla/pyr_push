@@ -38,6 +38,10 @@ module Tgp
           end
 
           def register(user_id, device_token, device_type, options={})
+            platform_app_arn = arn_from_device_type(device_type)
+
+            return if platform_app_arn.nil?
+
             #puts "CHECK OUT MY OPTIONS 1 #{options.inspect}"
             user_id = user_id.is_a?(Integer) ? user_id : user_id.id
 
@@ -54,9 +58,10 @@ module Tgp
               end
             end
 
-            device = find_or_create_unique(:user_id => user_id, :device_token => device_token, :device_type => device_type)
 
-            endpoint = the_sns.client.create_platform_endpoint(platform_application_arn: arn_from_device_type(device_type), token: device_token)
+            device = find_or_create_unique(:user_id => user_id, :device_token => device_token, :device_type => device_type, :platform_app_arn => platform_app_arn)
+
+            endpoint = the_sns.client.create_platform_endpoint(platform_application_arn: platform_app_arn, token: device_token)
 
             device.target_arn = endpoint[:endpoint_arn] if endpoint
             device.save

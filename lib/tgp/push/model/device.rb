@@ -13,6 +13,7 @@ module Tgp
                           :is_active,
                           :user_id,
                           :target_arn
+                          :platform_app_arn
       
           #belongs_to :user
 

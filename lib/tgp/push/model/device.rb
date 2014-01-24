@@ -12,7 +12,7 @@ module Tgp
                           :device_type,
                           :is_active,
                           :user_id,
-                          :target_arn
+                          :target_arn,
                           :platform_app_arn
       
           #belongs_to :user

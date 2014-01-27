@@ -60,7 +60,9 @@ module Tgp
             end
 
 
-            device = find_or_create_unique(:user_id => user_id, :device_token => device_token, :device_type => device_type, :platform_app_arn => platform_app_arn)
+            device = find_or_create_unique(:device_token => device_token, :device_type => device_type)
+            device.user_id = user_id
+            device.platform_app_arn = platform_app_arn
 
             endpoint = the_sns.client.create_platform_endpoint(platform_application_arn: platform_app_arn, token: device_token)
 

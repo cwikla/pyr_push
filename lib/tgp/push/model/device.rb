@@ -63,11 +63,12 @@ module Tgp
             device_token = device_token.strip
 
             device = find_or_create_unique(:device_token => device_token, :device_type => device_type)
-            device.is_active = true
             device.user_id = user_id
             device.platform_app_arn = platform_app_arn
 
-            endpoint = the_sns.client.create_platform_endpoint(platform_application_arn: platform_app_arn, token: device_token)
+            endpoint = the_sns.client.create_platform_endpoint(platform_application_arn: platform_app_arn, token: device_token, enabled: true)
+
+            device.is_active = endpoint ? true : false
 
             device.target_arn = endpoint[:endpoint_arn] if endpoint
             device.save

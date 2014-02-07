@@ -42,6 +42,7 @@ module Tgp
             platform_app_arn = arn_from_device_type(device_type)
 
             return if platform_app_arn.nil?
+            return if device_token.blank?
 
             #puts "CHECK OUT MY OPTIONS 1 #{options.inspect}"
             user_id = user_id.is_a?(Integer) ? user_id : user_id.id
@@ -59,8 +60,10 @@ module Tgp
               end
             end
 
+            device_token = device_token.strip
 
             device = find_or_create_unique(:device_token => device_token, :device_type => device_type)
+            device.is_active = true
             device.user_id = user_id
             device.platform_app_arn = platform_app_arn
 
@@ -83,8 +86,21 @@ module Tgp
           end
         end
 
-        def message(message=nil, badge_count=nil, sound=nil, expire_time=nil, user_data=nil)
+        def message(msg=nil, badge_count=nil, sound=nil, expire_time=nil, user_data=nil)
           return if !Tgp::Push::Engine.config.tgp_push_enabled
+          return if !is_active
+
+          begin
+            message_safe(msg, badge_count, sound, expire_time, user_data)
+          rescue AWS::SNS::Errors::EndpointDisabled => ed
+            puts  "#{d.inspect} has been deactivated"
+            self.update_attribute(:is_active, false)
+          end
+        end
+
+        def message_safe(message=nil, badge_count=nil, sound=nil, expire_time=nil, user_data=nil)
+          return if !Tgp::Push::Engine.config.tgp_push_enabled
+          return if !is_active
 
           #puts "SOUND IS #{sound}"
           #puts "USER DATA IS #{user_data.inspect}"

@@ -99,7 +99,7 @@ module Tgp
           begin
             message_safe(msg, badge_count, sound, expire_time, user_data)
           rescue AWS::SNS::Errors::EndpointDisabled => ed
-            puts  "#{d.inspect} has been deactivated"
+            puts  "#{self.inspect} has been deactivated"
             self.update_attribute(:is_active, false)
           end
         end

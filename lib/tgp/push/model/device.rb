@@ -66,8 +66,12 @@ module Tgp
             device.user_id = user_id
             device.platform_app_arn = platform_app_arn
 
-            puts  "CREATING ENDPOING FOR #{user_id} => PLAT_ARN [#{platform_app_arn}] => TOKEN [#{device_token}] => ENABLED true"
-            endpoint = the_sns.client.create_platform_endpoint(platform_application_arn: platform_app_arn, token: device_token, enabled: true)
+            puts  "CREATING ENDPOINT FOR #{user_id} => PLAT_ARN [#{platform_app_arn}] => TOKEN [#{device_token}]"
+            endpoint = the_sns.client.create_platform_endpoint(platform_application_arn: platform_app_arn, token: device_token)
+
+            if endpoint
+              the_sns.client.set_endpoint_attributes(:endpoint_arn => endpoint, :attributes => { "Enabled" => "true"})
+            end
 
             device.is_active = endpoint ? true : false
 

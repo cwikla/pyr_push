@@ -62,7 +62,7 @@ module Tgp
 
             device_token = device_token.strip
 
-            device = Device.where("device_token = ? and device_type = ?", device_token, device_type)
+            device = Device.where("device_token = ? and device_type = ?", device_token, device_type).first
             if device.nil?
               device = Device.create(:device_token => device_token, :device_type => device_type, :user_id => user_id)
             end

@@ -62,12 +62,7 @@ module Tgp
 
             device_token = device_token.strip
 
-            device = Device.where("device_token = ? and device_type = ?", device_token, device_type).first
-            if device.nil?
-              device = Device.create(:device_token => device_token, :device_type => device_type, :user_id => user_id)
-            end
-
-            device.user_id = user_id
+            device = find_or_create_unique(:user_id => user_id, :device_token => device_token, :device_type => device_type)
             device.platform_app_arn = platform_app_arn
 
             puts  "CREATING ENDPOINT FOR #{user_id} => PLAT_ARN [#{platform_app_arn}] => TOKEN [#{device_token}]"

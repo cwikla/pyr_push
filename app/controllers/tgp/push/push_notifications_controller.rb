@@ -7,7 +7,9 @@ module Tgp
       def create
         puts "CREATE PUSH PARAMS #{params.inspect}"
 
-        Tgp::Push::Device::register(current_user.id, params[:id], Tgp::Push::DEVICE_TYPE_IOS, params)
+        unless current_user.nil?
+          Tgp::Push::Device::register(current_user.id, params[:id], Tgp::Push::DEVICE_TYPE_IOS, params)
+        end
 
         render :nothing => true, :status => 201
       end
@@ -15,7 +17,9 @@ module Tgp
       def destroy
         #puts "DESTROY PUSH PARAMS #{params.inspect}"
 
-        Tgp::Push::Device::unregister(current_user.id, params[:id], Tgp::Push::DEVICE_TYPE_IOS)
+        unless current_user.nil?
+          Tgp::Push::Device::unregister(current_user.id, params[:id], Tgp::Push::DEVICE_TYPE_IOS)
+        end
 
         render :nothing => true, :status => 201
       end

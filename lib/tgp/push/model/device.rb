@@ -88,7 +88,8 @@ module Tgp
             device = where(:user_id => user_id, :device_token => device_token, :device_type => device_type).first
   
             if device
-              the_sns.client.destroy_platform_endpoint(platform_application_arn: arn_from_device_type(device_type), token: device_token)
+              #the_sns.client.destroy_platform_endpoint(platform_application_arn: arn_from_device_type(device_type), token: device_token)
+              the_sns.client.delete_endpoint(:endpoint_arn => device.target_arn) if device.target_arn
               device.destroy
             end
           end

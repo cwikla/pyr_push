@@ -62,9 +62,9 @@ module Tgp
 
             device_token = device_token.strip
 
-            device = find_or_create_unique(:device_token => device_token, :device_type => device_type)
+            device = find_or_create_unique(:device_token => device_token, :device_type => device_type, :platform_app_arn => platform_app_arn)
             device.user_id = user_id
-            device.platform_app_arn = platform_app_arn
+            #device.platform_app_arn = platform_app_arn
 
             puts  "CREATING ENDPOINT FOR #{user_id} => PLAT_ARN [#{platform_app_arn}] => TOKEN [#{device_token}]"
             endpoint = the_sns.client.create_platform_endpoint(platform_application_arn: platform_app_arn, token: device_token)
@@ -101,7 +101,7 @@ module Tgp
 
           begin
             message_safe(msg, badge_count, sound, expire_time, user_data)
-          rescue AWS::SNS::Errors::EndpointDisabled => ed
+          rescue AWS::SNS::Errors::EndpointDisabled, AWS::Core::OptionGrammar::FormatError => ed
             puts  "#{self.inspect} has been deactivated"
             self.update_attribute(:is_active, false)
           end

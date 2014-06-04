@@ -23,6 +23,7 @@ module Tgp
       
         module ClassMethods
 
+          # Maybe this needs to be threadsafe?  Worry about it later
           def the_sns
            @sns ||= AWS::SNS.new( :access_key_id => ::AWS_ACCESS_KEY_ID, :secret_access_key => ::AWS_SECRET_KEY)
           end

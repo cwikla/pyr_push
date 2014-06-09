@@ -146,13 +146,15 @@ module Tgp
 
           #puts "2 => #{package.to_json}"
           #
-          begin
-            push_log = Tgp::Push::Log.new
-            push_log.device_id = self.id
-            push_log.package   = package.to_json
-            push_log.save
-          rescue StandardError => error
-            puts "Tgp::Push::Device.message error logging push: #{error}"
+          if Tgp::Push::Engine.config.tgp_push_db_logging_enabled
+            begin
+              push_log = Tgp::Push::Log.new
+              push_log.device_id = self.id
+              push_log.package   = package.to_json
+              push_log.save
+            rescue StandardError => error
+              puts "Tgp::Push::Device.message error logging push: #{error}"
+            end
           end
 
           self.class.the_sns.client.publish(target_arn: self.target_arn, message: package.to_json, message_structure: 'json' )

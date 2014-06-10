@@ -5,7 +5,6 @@ module Tgp
         extend ActiveSupport::Concern
       
         included do
-          #set_table_name "tgp_push_devices"
           self.table_name = 'tgp_push_devices'
 
           attr_accessible :device_token,
@@ -96,27 +95,26 @@ module Tgp
           end
         end
 
-        def message(msg=nil, badge_count=nil, sound=nil, expire_time=nil, user_data=nil)
+        def message(message=nil, badge_count=nil, sound=nil, content_available=false, expire_time=nil, default_message=nil, user_data=nil)
           return if !Tgp::Push::Engine.config.tgp_push_enabled
           return if !is_active
 
           begin
-            message_safe(msg, badge_count, sound, expire_time, user_data)
+            message_safe(message, badge_count, sound, content_available, expire_time, default_message, user_data)
           rescue AWS::SNS::Errors::EndpointDisabled, AWS::Core::OptionGrammar::FormatError => ed
             puts  "#{self.inspect} has been deactivated"
             self.update_attribute(:is_active, false)
           end
         end
 
-        def message_safe(message=nil, badge_count=nil, sound=nil, expire_time=nil, user_data=nil)
+        def message_safe(message=nil, badge_count=nil, sound=nil, content_available=false, expire_time=nil, default_message=nil, user_data=nil)
           return if !Tgp::Push::Engine.config.tgp_push_enabled
           return if !is_active
 
           #puts "SOUND IS #{sound}"
           #puts "USER DATA IS #{user_data.inspect}"
 
-          return if message.nil? && badge_count.nil?
-
+          return if message.nil? && badge_count.nil? && content_available.nil? && default_message.nil?
           return if expire_time && (expire_time < Time.zone.now)
 
           #puts "BADGE COUNT #{badge_count}"
@@ -132,7 +130,7 @@ module Tgp
           aps_package["aps"]["alert"] = message if message
           aps_package["aps"]["badge"] = badge_count if badge_count
           aps_package["aps"]["sound"] = sound if sound
-          aps_package["aps"]["content-available"] = 1 if badge_count # if we have a badge_count, we have content
+          aps_package["aps"]["content-available"] = 1 if content_available # if we have a badge_count, we have content
           
           if user_data
             user_data.each_pair do |k,v|
@@ -141,28 +139,34 @@ module Tgp
           end
 
           package = {}
-          package["default"] = "The default #{Time.now}"
-          package[platform] =  aps_package.to_json
+          package["default"] = default_message ? default_message : "The default #{Time.now}"
+          package[platform]  = aps_package.to_json unless message.nil? && badge_count.nil? && !content_available
 
           #puts "2 => #{package.to_json}"
           #
-          if Tgp::Push::Engine.config.tgp_push_db_logging_enabled
-            begin
-              push_log = Tgp::Push::Log.new
-              push_log.device_id = self.id
-              push_log.package   = package.to_json
-              push_log.save
-            rescue StandardError => error
-              puts "Tgp::Push::Device.message error logging push: #{error}"
-            end
-          end
-
+          log_push_to_db(package)
           self.class.the_sns.client.publish(target_arn: self.target_arn, message: package.to_json, message_structure: 'json' )
         end
 
         def badge_count(count)
           self.message(nil, count)
         end
+
+private
+
+        def log_push_to_db(package)
+          return if !Tgp::Push::Engine.config.tgp_push_db_logging_enabled
+
+          begin
+            push_log = Tgp::Push::Log.new
+            push_log.device_id = self.id
+            push_log.package   = package.to_json
+            push_log.save
+          rescue StandardError => error
+            puts "Tgp::Push::Device.message error logging push: #{error}"
+          end
+        end
+
 
       end
     end

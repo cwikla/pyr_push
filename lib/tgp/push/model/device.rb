@@ -62,9 +62,9 @@ module Tgp
 
             device_token = device_token.strip
 
-            device = find_or_create_unique(:device_token => device_token, :device_type => device_type, :platform_app_arn => platform_app_arn)
+            device = find_or_create_unique(:device_token => device_token, :device_type => device_type)
             device.user_id = user_id
-            #device.platform_app_arn = platform_app_arn
+            device.platform_app_arn = platform_app_arn
 
             #puts  "CREATING ENDPOINT FOR #{user_id} => PLAT_ARN [#{platform_app_arn}] => TOKEN [#{device_token}]"
             endpoint = the_sns.client.create_platform_endpoint(platform_application_arn: platform_app_arn, token: device_token)
@@ -120,7 +120,7 @@ module Tgp
           #puts "BADGE COUNT #{badge_count}"
 
           platform_arn = self.class.arn_from_device_type(self.device_type)
-          return if platform_arn.nil?
+          return if (platform_arn.nil? || platform_arn != self.platform_app_arn)
 
           platform = platform_arn.split("/")[1]
 

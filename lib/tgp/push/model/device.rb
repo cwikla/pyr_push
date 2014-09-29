@@ -95,19 +95,19 @@ module Tgp
           end
         end
 
-        def message(message=nil, badge_count=nil, sound=nil, content_available=false, expire_time=nil, default_message=nil, user_data=nil)
+        def message(message=nil, badge_count=nil, sound=nil, content_available=false, category=nil, expire_time=nil, default_message=nil, user_data=nil)
           return if !Tgp::Push::Engine.config.tgp_push_enabled
           return if !is_active
 
           begin
-            message_safe(message, badge_count, sound, content_available, expire_time, default_message, user_data)
+            message_safe(message, badge_count, sound, content_available, category, expire_time, default_message, user_data)
           rescue AWS::SNS::Errors::EndpointDisabled, AWS::Core::OptionGrammar::FormatError => ed
             puts  "#{self.inspect} has been deactivated"
             self.update_attribute(:is_active, false)
           end
         end
 
-        def message_safe(message=nil, badge_count=nil, sound=nil, content_available=false, expire_time=nil, default_message=nil, user_data=nil)
+        def message_safe(message=nil, badge_count=nil, sound=nil, content_available=false, category=nil, expire_time=nil, default_message=nil, user_data=nil)
           return if !Tgp::Push::Engine.config.tgp_push_enabled
           return if !is_active
 
@@ -130,7 +130,8 @@ module Tgp
           aps_package["aps"]["alert"] = message if message
           aps_package["aps"]["badge"] = badge_count if badge_count
           aps_package["aps"]["sound"] = sound if sound
-          aps_package["aps"]["content-available"] = 1 if content_available # if we have a badge_count, we have content
+          aps_package["aps"]["content-available"] = 1 if content_available
+          aps_package["aps"]["category"] = category if category
           
           if user_data
             user_data.each_pair do |k,v|
@@ -143,7 +144,7 @@ module Tgp
           package[platform]  = aps_package.to_json unless message.nil? && badge_count.nil? && !content_available
 
           #puts "2 => #{package.to_json}"
-          #
+
           log_push_to_db(package)
           self.class.the_sns.client.publish(target_arn: self.target_arn, message: package.to_json, message_structure: 'json' )
         end
@@ -155,7 +156,7 @@ module Tgp
 private
 
         def log_push_to_db(package)
-          return if !Tgp::Push::Engine.config.tgp_push_db_logging_enabled
+          return unless Tgp::Push::Engine.config.tgp_push_db_logging_enabled
 
           begin
             push_log = Tgp::Push::Log.new

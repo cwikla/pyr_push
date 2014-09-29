@@ -8,7 +8,8 @@ module Tgp
           :default_message   => nil,
           :content_available => false,
           :force             => false,
-          :user_data         => nil }
+          :user_data         => nil,
+          :category          => nil }
       end
 
       def self.channel_message(channel_name, message, options={})
@@ -22,6 +23,7 @@ module Tgp
         default_message   = options[:default_message]
         content_available = options[:content_available]
         user_data         = options[:user_data]
+        category          = options[:category]
 
         Tgp::Push::ChannelJob::async_message(channel_name, message, sound, ttl, force, default_message, user_data)
       end
@@ -41,6 +43,7 @@ module Tgp
         default_message   = options[:default_message]
         content_available = options[:content_available]
         user_data         = options[:user_data]
+        category          = options[:category]
 
         start_time = Tgp::Push::Engine.config.tgp_push_start_message_time
         end_time = Tgp::Push::Engine.config.tgp_push_end_message_time
@@ -86,7 +89,7 @@ module Tgp
         expire_time = ttl.nil? ? nil : Time.zone.now + ttl
 
         devices = Tgp::Push::Device::where(:user_id => user_id, :is_active => true).each do |d|
-          Tgp::Push::DeviceJob::async_message(d.id, message, badge_count, sound, content_available, expire_time, default_message, user_data)
+          Tgp::Push::DeviceJob::async_message(d.id, message, badge_count, sound, content_available, category, expire_time, default_message, user_data)
           count = count + 1
         end
 

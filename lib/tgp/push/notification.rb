@@ -1,15 +1,31 @@
 module Tgp
   module Push
     class Notification
+
+      def self.default_options
+        { :ttl               => Tgp::Push::Engine.config.tgp_push_ttl,
+          :sound             => Tgp::Push::Engine.config.tgp_push_sound,
+          :default_message   => nil,
+          :content_available => false,
+          :force             => false,
+          :user_data         => nil,
+          :category          => nil }
+      end
+
       def self.channel_message(channel_name, message, options={})
         return if !Tgp::Push::Engine.config.tgp_push_enabled
 
-        ttl = options.include?(:ttl) ? options[:ttl] : Tgp::Push::Engine.config.tgp_push_ttl
-        sound = options.include?(:sound) ? options[:sound] : Tgp::Push::Engine.config.tgp_push_sound
-        force = options[:force] || false # force sound to play
-        user_data = options[:user_data]
+        options = default_options.merge! options
 
-        Tgp::Push::ChannelJob::async_message(channel_name, message, sound, ttl, force, user_data)
+        ttl               = options[:ttl] 
+        sound             = options[:sound]
+        force             = options[:force]
+        default_message   = options[:default_message]
+        content_available = options[:content_available]
+        user_data         = options[:user_data]
+        category          = options[:category]
+
+        Tgp::Push::ChannelJob::async_message(channel_name, message, sound, ttl, force, default_message, user_data)
       end
 
       def self.message(user_id, message, badge_count=nil, options={})
@@ -19,10 +35,15 @@ module Tgp
         user_id = user_id.is_a?(Integer) ? user_id : user_id.id
 
         count = 0
+        options = default_options.merge! options
 
-        ttl = options.include?(:ttl) ? options[:ttl] : Tgp::Push::Engine.config.tgp_push_ttl
-        sound = options.include?(:sound) ? options[:sound] : Tgp::Push::Engine.config.tgp_push_sound
-        force = options[:force] || false # force sound to play
+        ttl               = options[:ttl] 
+        sound             = options[:sound]
+        force             = options[:force]
+        default_message   = options[:default_message]
+        content_available = options[:content_available]
+        user_data         = options[:user_data]
+        category          = options[:category]
 
         start_time = Tgp::Push::Engine.config.tgp_push_start_message_time
         end_time = Tgp::Push::Engine.config.tgp_push_end_message_time
@@ -63,12 +84,12 @@ module Tgp
 
         #puts "POST SOUND #{sound}"
 
-        return if message.nil? && badge_count.nil? # nothing to do, return
+        return if message.nil? && badge_count.nil? && !content_available && default_message.nil? # nothing to do, return
 
         expire_time = ttl.nil? ? nil : Time.zone.now + ttl
 
         devices = Tgp::Push::Device::where(:user_id => user_id, :is_active => true).each do |d|
-          Tgp::Push::DeviceJob::async_message(d.id, message, badge_count, sound, expire_time, options[:user_data])
+          Tgp::Push::DeviceJob::async_message(d.id, message, badge_count, sound, content_available, category, expire_time, default_message, user_data)
           count = count + 1
         end
 
@@ -82,6 +103,7 @@ module Tgp
       def self.badge(user_id, count, options={})
         self.message(user_id, nil, options)
       end
+
 
     end
   end

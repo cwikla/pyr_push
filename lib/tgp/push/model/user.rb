@@ -4,8 +4,13 @@ module Tgp
       module User
         extend ActiveSupport::Concern
 
+        included do
+          has_many :devices, :class_name => "Tgp::Push::Device"
+          has_many :active_devices, :class_name => "Tgp::Push::Device", :conditions => proc { "is_active = true and device_token is not null and device_type is not null" }
+        end
+
         def can_push?
-          return self.device && self.device.is_active? && !self.device.device_token.nil? && !self.device_type.nil?
+          return !self.active_devices.blank?
         end
       end
     end

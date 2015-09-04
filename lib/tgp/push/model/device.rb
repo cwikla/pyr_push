@@ -63,7 +63,7 @@ module Tgp
 
             device_token = device_token.strip
 
-            device = find_or_create_unique(:device_token => device_token, :device_type => device_type, :platform_app_arn => platform_app_arn)
+            device = find_or_create_unique_with_create_options(:device_token => device_token, :device_type => device_type, :platform_app_arn => platform_app_arn)
             device.user_id = user_id
             #device.platform_app_arn = platform_app_arn
 

@@ -32,6 +32,10 @@ module Tgp
       Tgp::Push::Notification::message(user_id, message, badge_count, options)
     end
 
+    def self.message_device_ids(device_ids, message, badge_count=nil, options={})
+      Tgp::Push::Notification::message_device_ids(device_ids, message, badge_count, options)
+    end
+
     def self.badge(user_id, badge_count, options={})
       Tgp::Push::Notification::badge(user_id, badge_count, options)
     end

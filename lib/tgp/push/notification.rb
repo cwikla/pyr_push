@@ -37,13 +37,7 @@ module Tgp
         count = 0
         options = default_options.merge! options
 
-        ttl               = options[:ttl] 
-        sound             = options[:sound]
         force             = options[:force]
-        default_message   = options[:default_message]
-        content_available = options[:content_available]
-        user_data         = options[:user_data]
-        category          = options[:category]
 
         start_time = Tgp::Push::Engine.config.tgp_push_start_message_time
         end_time = Tgp::Push::Engine.config.tgp_push_end_message_time
@@ -71,29 +65,43 @@ module Tgp
 
           if start_time > end_time # roll over
             if (full_time > end_time) && (full_time < start_time)
-              sound = nil
+              options.delete(:sound)
             end
               
           else
 
             if (full_time > end_time) || (full_time < start_time)
-              sound = nil
+              options.delete(:sound)
             end
           end
         end
 
-        #puts "POST SOUND #{sound}"
+        device_ids = Tgp::Push::Device::where(:user_id => user_id, :is_active => true).map(&:id)
+
+        message_device_ids(device_ids, message, badge_count, options)
+        Rails.logger.debug("User #{user_id} has no registered/active push devices!") if device_ids.count == 0
+
+      end
+
+
+      def self.message_device_ids(device_ids, message, badge_count=nil, options={})
+        options = default_options.merge! options
+
+        ttl               = options[:ttl]
+        sound             = options[:sound]
+        default_message   = options[:default_message]
+        content_available = options[:content_available]
+        user_data         = options[:user_data]
+        category          = options[:category]
+
 
         return if message.nil? && badge_count.nil? && !content_available && default_message.nil? # nothing to do, return
-
         expire_time = ttl.nil? ? nil : Time.zone.now + ttl
 
-        devices = Tgp::Push::Device::where(:user_id => user_id, :is_active => true).each do |d|
-          Tgp::Push::DeviceJob::async_message(d.id, message, badge_count, sound, content_available, category, expire_time, default_message, user_data)
-          count = count + 1
+        device_ids.each do |d_id|
+          Tgp::Push::DeviceJob::async_message(d_id, message, badge_count, sound, content_available, category, expire_time, default_message, user_data)
         end
 
-        Rails.logger.debug("User #{user_id} has no registered/active push devices!") if count == 0
       end
 
       def self.alert(user_id, the_message, options={})
@@ -103,8 +111,6 @@ module Tgp
       def self.badge(user_id, count, options={})
         self.message(user_id, nil, options)
       end
-
-
     end
   end
 end

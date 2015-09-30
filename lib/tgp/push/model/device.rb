@@ -38,59 +38,69 @@ module Tgp
             arn
           end
 
-          def register(user_id, device_token, device_type, options={})
+          def register(user_ids, device_token, device_type, options={})
             platform_app_arn = arn_from_device_type(device_type)
 
             return if platform_app_arn.nil?
             return if device_token.blank?
 
             #puts "CHECK OUT MY OPTIONS 1 #{options.inspect}"
-            user_id = user_id.is_a?(Integer) ? user_id : user_id.id
+            user_ids = [user_ids] unless user_ids.is_a? Array
+            user_ids = user_ids.map { |user_id| user_id.is_a?(Integer) ? user_id : user_id.id }
 
             if options.keys.map { |x| x.to_sym} & [:tz, :start_time, :end_time]
-              #puts "CHECK OUT MY OPTIONS #{options.inspect}"
-              pref = Tgp::Push::UserPref.find_or_create_unique(:user_id => user_id)
+              for user_id in user_ids
+                #puts "CHECK OUT MY OPTIONS #{options.inspect}"
+                pref = Tgp::Push::UserPref.find_or_create_unique(:user_id => user_id)
 
-              pref.tz = options[:tz] || options["tz"] if options[:tz] || options["tz"]
-              pref.start_time = options[:start_time] || options["start_time"] if options[:start_time] || options["start_time"]
-              pref.end_time = options[:end_time] || options["end_time"] if options[:end_time] || options["end_time"]
+                pref.tz = options[:tz] || options["tz"] if options[:tz] || options["tz"]
+                pref.start_time = options[:start_time] || options["start_time"] if options[:start_time] || options["start_time"]
+                pref.end_time = options[:end_time] || options["end_time"] if options[:end_time] || options["end_time"]
 
-              if !pref.save
-                raise Exception, pref.errors.full_messages.join(", ")
+                if !pref.save
+                  raise Exception, pref.errors.full_messages.join(", ")
+                end
               end
             end
 
             device_token = device_token.strip
-
-            device = find_or_create_unique_with_create_options(:device_token => device_token, :device_type => device_type, :platform_app_arn => platform_app_arn)
-            device.user_id = user_id
-            device.platform_app_arn = platform_app_arn
-
-            #puts  "CREATING ENDPOINT FOR #{user_id} => PLAT_ARN [#{platform_app_arn}] => TOKEN [#{device_token}]"
             endpoint = the_sns.client.create_platform_endpoint(platform_application_arn: platform_app_arn, token: device_token)
-
-            #puts "GOT ENDPOINT #{endpoint.inspect}"
-
             if endpoint
               the_sns.client.set_endpoint_attributes(:endpoint_arn => endpoint[:endpoint_arn].to_s, :attributes => { "Enabled" => "true"})
             end
 
-            device.is_active = endpoint ? true : false
 
-            device.target_arn = endpoint[:endpoint_arn] if endpoint
-            device.save
+            if options[:keep_registrations]
+              devices = where(:device_token => device_token, :device_type => device_type, :platform_app_arn => platform_app_arn, :user_id => user_ids).all
+              user_ids -= devices.map(&:user_id)
+            else
+              devices = where(:device_token => device_token, :device_type => device_type, :platform_app_arn => platform_app_arn)
+              registered_user_ids = devices.map(&:user_id)
+              devices.where(:user_id => (registered_user_ids - user_ids)).destroy_all
 
+              user_ids -= registered_user_ids
+            end
+
+            user_ids.each do |user_id|
+              device = new(:device_token => device_token,
+                           :device_type => device_type,
+                           :platform_app_arn => platform_app_arn,
+                           :user_id => user_id)
+              device.is_active = endpoint ? true : false
+              device.target_arn = endpoint[:endpoint_arn] if endpoint
+              device.save
+            end
           end
 
-          def unregister(user_id, device_token, device_type)
-            user_id = user_id.is_a?(Integer) ? user_id : user.id
-
-            device = where(:user_id => user_id, :device_token => device_token, :device_type => device_type).first
+          def unregister(device_token, device_type)
+            devices = where(:device_token => device_token, :device_type => device_type, :platform_app_arn => platform_app_arn)
   
-            if device
-              #the_sns.client.destroy_platform_endpoint(platform_application_arn: arn_from_device_type(device_type), token: device_token)
-              the_sns.client.delete_endpoint(:endpoint_arn => device.target_arn) if device.target_arn
-              device.destroy
+            if devices.count > 0
+              devices.each do |device|
+                the_sns.client.delete_endpoint(:endpoint_arn => device.target_arn) if device.target_arn
+              end
+
+              devices.destroy
             end
           end
         end

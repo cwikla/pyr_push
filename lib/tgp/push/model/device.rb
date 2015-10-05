@@ -93,6 +93,7 @@ module Tgp
           end
 
           def unregister(device_token, device_type)
+            platform_app_arn = arn_from_device_type(device_type)
             devices = where(:device_token => device_token, :device_type => device_type, :platform_app_arn => platform_app_arn)
   
             if devices.count > 0
@@ -100,7 +101,7 @@ module Tgp
                 the_sns.client.delete_endpoint(:endpoint_arn => device.target_arn) if device.target_arn
               end
 
-              devices.destroy
+              devices.destroy_all
             end
           end
         end

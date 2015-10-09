@@ -44,6 +44,8 @@ module Tgp
             return if platform_app_arn.nil?
             return if device_token.blank?
 
+            device_token = device_token.strip
+
             #puts "CHECK OUT MY OPTIONS 1 #{options.inspect}"
             user_ids = [user_ids] unless user_ids.is_a? Array
             user_ids = user_ids.map { |user_id| user_id.is_a?(Integer) ? user_id : user_id.id }
@@ -63,62 +65,64 @@ module Tgp
               end
             end
 
-            device_token = device_token.strip
             endpoint = the_sns.client.create_platform_endpoint(platform_application_arn: platform_app_arn, token: device_token)
             if endpoint
               the_sns.client.set_endpoint_attributes(:endpoint_arn => endpoint[:endpoint_arn].to_s, :attributes => { "Enabled" => "true"})
             end
 
-
-            if options[:keep_registrations]
-              devices = where(:device_token => device_token, :device_type => device_type, :platform_app_arn => platform_app_arn, :user_id => user_ids).all
-              user_ids -= devices.map(&:user_id)
-            else
-              devices = where(:device_token => device_token, :device_type => device_type, :platform_app_arn => platform_app_arn)
-              registered_user_ids = devices.map(&:user_id)
-              devices.where(:user_id => (registered_user_ids - user_ids)).destroy_all
-
-              user_ids -= registered_user_ids
+            unless options[:keep_registrations]
+              #update_all({:is_active => false}, {:device_token => device_token, :device_type => device_type}) unless options[:keep_registrations]
+              destroy_all(["device_token = ? and device_type = ? and user_id not in (?)", device_token, device_type, user_ids])
             end
 
             user_ids.each do |user_id|
-              device = new(:device_token => device_token,
-                           :device_type => device_type,
-                           :platform_app_arn => platform_app_arn,
-                           :user_id => user_id)
+              device = find_or_create_unique_with_create_options({:user_id => user_id, :device_token => device_token, :device_type => device_type}, { :platform_app_arn => platform_app_arn })
               device.is_active = endpoint ? true : false
               device.target_arn = endpoint[:endpoint_arn] if endpoint
+              device.platform_app_arn = platform_app_arn
               device.save
             end
           end
 
-          def unregister(device_token, device_type)
+          def unregister(user_ids, device_token, device_type, options={})
             platform_app_arn = arn_from_device_type(device_type)
+            user_ids = [user_ids] unless user_ids.is_a? Array
+            user_ids = user_ids.map { |user_id| user_id.is_a?(Integer) ? user_id : user_id.id }
+
             devices = where(:device_token => device_token, :device_type => device_type, :platform_app_arn => platform_app_arn)
-  
+
             if devices.count > 0
               devices.each do |device|
-                the_sns.client.delete_endpoint(:endpoint_arn => device.target_arn) if device.target_arn
+                if !options[:keep_registrations] || user_ids.include?(device.user_id)
+                  the_sns.client.delete_endpoint(:endpoint_arn => device.target_arn) if device.target_arn
+                  device.destroy
+                end
               end
-
-              devices.destroy_all
             end
           end
         end
 
-        def message(message=nil, badge_count=nil, sound=nil, content_available=false, category=nil, expire_time=nil, default_message=nil, user_data=nil)
+        def message(message=nil, badge_count=nil, options={})
           return if !Tgp::Push::Engine.config.tgp_push_enabled
           return if !is_active
 
           begin
-            message_safe(message, badge_count, sound, content_available, category, expire_time, default_message, user_data)
+            message_safe(message, badge_count=nil, options={})
+
           rescue AWS::SNS::Errors::EndpointDisabled, AWS::Core::OptionGrammar::FormatError => ed
             puts  "#{self.inspect} has been deactivated"
             self.update_attribute(:is_active, false)
           end
         end
 
-        def message_safe(message=nil, badge_count=nil, sound=nil, content_available=false, category=nil, expire_time=nil, default_message=nil, user_data=nil)
+        def message_safe(message=nil, badge_count=nil, options={})
+          sound = options[:sound]
+          content_available = options[:content_available] || false
+          category = options[:category]
+          expire_time = options[:expire_time]
+          default_message = options[:default_message]
+          user_data = options[:user_data]
+
           return if !Tgp::Push::Engine.config.tgp_push_enabled
           return if !is_active
 

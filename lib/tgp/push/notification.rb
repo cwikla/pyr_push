@@ -109,7 +109,7 @@ module Tgp
       end
 
       def self.badge(user_id, count, options={})
-        self.message(user_id, nil, options)
+        self.message(user_id, nil, count, options)
       end
     end
   end

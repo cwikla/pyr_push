@@ -18,7 +18,7 @@ module Tgp
         #puts "DESTROY PUSH PARAMS #{params.inspect}"
 
         unless current_user.nil?
-          Tgp::Push::Device::unregister(params[:id], Tgp::Push::DEVICE_TYPE_IOS)
+          Tgp::Push::Device::unregister(current_user.id, params[:id], Tgp::Push::DEVICE_TYPE_IOS)
         end
 
         render :nothing => true, :status => 201

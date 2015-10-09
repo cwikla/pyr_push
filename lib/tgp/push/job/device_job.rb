@@ -34,7 +34,7 @@ module Tgp::Push
       expire_time = Time.zone.at(expire_time_i) if expire_time_i
 
       device = Tgp::Push::Device.find(device_id)
-      device.message(message, badge_count, sound, content_available, category, expire_time, default_message, user_data)
+      device.message(message, badge_count, :sound => sound, :content_available => content_available, :category => category, :expire_time => expire_time, :default_message => default_message, :user_data => user_data)
     end
   end
 end

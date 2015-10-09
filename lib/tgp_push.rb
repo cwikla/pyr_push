@@ -22,8 +22,8 @@ module Tgp
       Tgp::Push::Device::register(user_id, device_token, device_type, options)
     end
 
-    def self.unregister(user_id, device_token, device_type)
-      Tgp::Push::Device::unregister(device_token, device_type)
+    def self.unregister(user_id, device_token, device_type, options={})
+      Tgp::Push::Device::unregister(user_id, device_token, device_type, options={})
     end
 
     # options = :ttl => time to live in seconds, :sound => soundfile on app or  "default" or nil (for nothing), and :force to override the muted sound, and :user_data

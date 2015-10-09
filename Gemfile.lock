@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    tgp_push (2.6.5)
+    tgp_push (2.6.6)
       aws-sdk
       rails (~> 3.2.13)
       tgp_async

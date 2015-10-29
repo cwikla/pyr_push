@@ -107,7 +107,7 @@ module Tgp
           return if !is_active
 
           begin
-            message_safe(message, badge_count=nil, options={})
+            message_safe(message, badge_count, options)
 
           rescue AWS::SNS::Errors::EndpointDisabled, AWS::Core::OptionGrammar::FormatError => ed
             puts  "#{self.inspect} has been deactivated"

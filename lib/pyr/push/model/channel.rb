@@ -1,4 +1,4 @@
-module Tgp
+module Pyr
   module Push
     module Model
       class NoSuchChannelException < Exception
@@ -8,7 +8,7 @@ module Tgp
         extend ActiveSupport::Concern
       
         included do
-          self.table_name = "tgp_push_channels"
+          self.table_name = "pyr_push_channels"
 
           attr_accessible :name
        

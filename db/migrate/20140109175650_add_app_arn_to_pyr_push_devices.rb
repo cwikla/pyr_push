@@ -2,7 +2,7 @@ class AddAppArnToPyrPushDevices < ActiveRecord::Migration
   def up
     remove_index :pyr_push_devices, :name => :udd_pd_idx
 
-    add_column :pyr_push_devices, :platform_app_arn, :string, :limit => 64, :null => false, :default => "There ain't no ARN here"
+    add_column :pyr_push_devices, :platform_app_arn, :string, :limit => 255, :null => false, :default => "There ain't no ARN here"
 
     Pyr::Push::Device.all.each do |x|
       x.platform_app_arn = Pyr::Push::Engine.config.pyr_push_apns_arn if x.device_type == Pyr::Push::DEVICE_TYPE_IOS

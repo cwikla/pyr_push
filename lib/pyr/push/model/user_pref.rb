@@ -1,11 +1,11 @@
-module Tgp
+module Pyr
   module Push
     module Model
       module UserPref
         extend ActiveSupport::Concern
       
         included do
-          self.table_name = "tgp_push_user_prefs"
+          self.table_name = "pyr_push_user_prefs"
 
           attr_accessible :user_id,
                           :tz,

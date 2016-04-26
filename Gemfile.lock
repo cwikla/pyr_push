@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    pyr_push (3.0.1)
+    pyr_push (4.0.0)
       aws-sdk
       pyr_async
       rails (~> 4.2.6)

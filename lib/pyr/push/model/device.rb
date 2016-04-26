@@ -1,23 +1,16 @@
-module Tgp
+module Pyr
   module Push
     module Model
       module Device
         extend ActiveSupport::Concern
       
         included do
-          self.table_name = 'tgp_push_devices'
+          self.table_name = 'pyr_push_devices'
 
-          attr_accessible :device_token,
-                          :device_type,
-                          :is_active,
-                          :user_id,
-                          :target_arn,
-                          :platform_app_arn
-      
           belongs_to :user
 
-          validate :device_token, :presence => true
-          validate :device_type,  :presence => true, :inclusion=> { :in => [ Tgp::Push::DEVICE_TYPE_IOS, Tgp::Push::DEVICE_TYPE_ANDROID] }
+          validates :device_token, :presence => true
+          validates :device_type,  :presence => true, :inclusion=> { :in => [ Pyr::Push::DEVICE_TYPE_IOS, Pyr::Push::DEVICE_TYPE_ANDROID] }
         end
       
         module ClassMethods
@@ -30,10 +23,10 @@ module Tgp
           def arn_from_device_type(device_type)
             arn = nil
 
-            arn = Tgp::Push::Engine.config.tgp_push_apns_arn if Tgp::Push::DEVICE_TYPE_IOS == device_type
-            arn = Tgp::Push::Engine.config.tgp_push_gcm_arn if Tgp::Push::DEVICE_TYPE_ANDROID == device_type
+            arn = Pyr::Push::Engine.config.pyr_push_apns_arn if Pyr::Push::DEVICE_TYPE_IOS == device_type
+            arn = Pyr::Push::Engine.config.pyr_push_gcm_arn if Pyr::Push::DEVICE_TYPE_ANDROID == device_type
 
-            Rails.logger("You need to set one of Tgp::Push::Engine.config.tgp_push_apns_arn or Tgp::Push::Engine.config.tgp_push_gcm_arn") if arn.nil?
+            Rails.logger("You need to set one of Pyr::Push::Engine.config.pyr_push_apns_arn or Pyr::Push::Engine.config.pyr_push_gcm_arn") if arn.nil?
 
             arn
           end
@@ -53,7 +46,7 @@ module Tgp
             if options.keys.map { |x| x.to_sym} & [:tz, :start_time, :end_time]
               for user_id in user_ids
                 #puts "CHECK OUT MY OPTIONS #{options.inspect}"
-                pref = Tgp::Push::UserPref.find_or_create_unique(:user_id => user_id)
+                pref = Pyr::Push::UserPref.find_or_create_unique(:user_id => user_id)
 
                 pref.tz = options[:tz] || options["tz"] if options[:tz] || options["tz"]
                 pref.start_time = options[:start_time] || options["start_time"] if options[:start_time] || options["start_time"]
@@ -103,7 +96,7 @@ module Tgp
         end
 
         def message(message=nil, badge_count=nil, options={})
-          return if !Tgp::Push::Engine.config.tgp_push_enabled
+          return if !Pyr::Push::Engine.config.pyr_push_enabled
           return if !is_active
 
           begin
@@ -123,7 +116,7 @@ module Tgp
           default_message = options[:default_message]
           user_data = options[:user_data]
 
-          return if !Tgp::Push::Engine.config.tgp_push_enabled
+          return if !Pyr::Push::Engine.config.pyr_push_enabled
           return if !is_active
 
           #puts "SOUND IS #{sound}"
@@ -171,15 +164,15 @@ module Tgp
 private
 
         def log_push_to_db(package)
-          return unless Tgp::Push::Engine.config.tgp_push_db_logging_enabled
+          return unless Pyr::Push::Engine.config.pyr_push_db_logging_enabled
 
           begin
-            push_log = Tgp::Push::Log.new
+            push_log = Pyr::Push::Log.new
             push_log.device_id = self.id
             push_log.package   = package.to_json
             push_log.save
           rescue StandardError => error
-            puts "Tgp::Push::Device.message error logging push: #{error}"
+            puts "Pyr::Push::Device.message error logging push: #{error}"
           end
         end
 

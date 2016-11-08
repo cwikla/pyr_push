@@ -7,8 +7,8 @@ module Pyr
         included do
           self.table_name = "pyr_push_channel_users"
 
-          attr_accessible :channel_id,
-                          :user_id
+          #attr_accessible :channel_id,
+          #                :user_id
 
           belongs_to :channel
           belongs_to :user

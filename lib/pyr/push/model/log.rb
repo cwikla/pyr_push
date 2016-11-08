@@ -8,8 +8,8 @@ module Pyr
           self.table_name = 'pyr_push_logs'
 
 
-          attr_accessible :device_id, 
-                          :package
+          #attr_accessible :device_id, 
+          #                :package
         end
 
       end

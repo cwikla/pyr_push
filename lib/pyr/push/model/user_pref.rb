@@ -7,10 +7,10 @@ module Pyr
         included do
           self.table_name = "pyr_push_user_prefs"
 
-          attr_accessible :user_id,
-                          :tz,
-                          :start_time,
-                          :end_time
+          #attr_accessible :user_id,
+          #                :tz,
+          #                :start_time,
+          #                :end_time
 
           belongs_to :user
 

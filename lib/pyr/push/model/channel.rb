@@ -10,7 +10,7 @@ module Pyr
         included do
           self.table_name = "pyr_push_channels"
 
-          attr_accessible :name
+          #attr_accessible :name
        
           has_many :channel_users
           has_many :users, through: :channel_users

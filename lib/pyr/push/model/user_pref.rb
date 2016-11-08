@@ -14,7 +14,7 @@ module Pyr
 
           belongs_to :user
 
-          validate :user, :presence => true
+          validates :user, :presence => true
 
           validate :check_params
         end

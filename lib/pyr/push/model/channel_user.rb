@@ -13,8 +13,8 @@ module Pyr
           belongs_to :channel
           belongs_to :user
 
-          validate :channel, :presence => true
-          validate :user, :presence => true
+          validates :channel, :presence => true
+          validates :user, :presence => true
         end
       
         module ClassMethods

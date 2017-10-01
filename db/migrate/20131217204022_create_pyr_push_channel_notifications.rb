@@ -1,4 +1,4 @@
-class CreatePyrPushChannelNotifications < ActiveRecord::Migration
+class CreatePyrPushChannelNotifications < ActiveRecord::Migration[5.1]
   def change
     # copies from Rapns gem
 

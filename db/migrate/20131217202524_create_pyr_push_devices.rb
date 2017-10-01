@@ -1,4 +1,4 @@
-class CreatePyrPushDevices < ActiveRecord::Migration
+class CreatePyrPushDevices < ActiveRecord::Migration[5.1]
   def change
     create_table :pyr_push_devices do |t|
       t.timestamps

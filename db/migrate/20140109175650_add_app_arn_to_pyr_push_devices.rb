@@ -1,4 +1,4 @@
-class AddAppArnToPyrPushDevices < ActiveRecord::Migration
+class AddAppArnToPyrPushDevices < ActiveRecord::Migration[5.1]
   def up
     remove_index :pyr_push_devices, :name => :udd_pd_idx
 

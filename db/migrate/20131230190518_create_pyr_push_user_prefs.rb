@@ -1,4 +1,4 @@
-class CreatePyrPushUserPrefs < ActiveRecord::Migration
+class CreatePyrPushUserPrefs < ActiveRecord::Migration[5.1]
   def change
     create_table :pyr_push_user_prefs do |t|
       t.timestamps

@@ -9,7 +9,7 @@ gemspec
 gem "jquery-rails"
 
 source "http://pyr:akbash42@gems.cwikla.com" do
-  gem "pyr_gem", ">= 4.0.0"
+  gem "pyr_gem", ">= 7.0.0"
 end
 
 

@@ -1,4 +1,4 @@
-class UpdateUniqueIndexOnDevices < ActiveRecord::Migration
+class UpdateUniqueIndexOnDevices < ActiveRecord::Migration[5.1]
   def up
     remove_index :pyr_push_devices, :name => :dd_pd_idx
     remove_index :pyr_push_devices, :name => :pyrpd_uddp_idx

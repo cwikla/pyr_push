@@ -1,4 +1,4 @@
-class CreatePyrPushChannels < ActiveRecord::Migration
+class CreatePyrPushChannels < ActiveRecord::Migration[5.1]
   def change
     create_table :pyr_push_channels do |t|
       t.timestamps
